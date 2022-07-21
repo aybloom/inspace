@@ -1,37 +1,50 @@
-## Welcome to GitHub Pages
+## Welcome to the Inspace Repository Page
+This page houses all of the instructions you will need for using the ACMT to pull measures for your dataset. 
 
-You can use the [editor on GitHub](https://github.com/aybloom/inspace/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+As an InSpace partner, you will be..... 
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+For this study, partners will be pulling data from the following datasets: 
+   -  [The American Community Survey](https://www.census.gov/programs-surveys/acs/about.html)
+   -  [Walkability Index](https://www.epa.gov/smartgrowth/smart-location-mapping#walkability)
+   -  [CDC PLACES data](https://www.cdc.gov/places/index.html)
+   -  [National Land Cover Database](https://www.usgs.gov/centers/eros/science/national-land-cover-database)
+   -  [Smart Location Database](https://www.epa.gov/smartgrowth/smart-location-mapping#SLD)
+   -  [Modified Retail Food Environment Index (mRFEI)](https://www.cdc.gov/obesity/downloads/census-tract-level-state-maps-mrfei_TAG508.pdf)
+   -  [Trust for Public Lands' ParkServe](https://www.tpl.org/parkserve)
+   -  [Applied Geographic Solutions CrimeRisk Data](https://appliedgeographic.com/crimerisk/)
+   -  [Sidewalk Score](https://journals.sagepub.com/doi/10.1177/0033354920968799)
 
-### Markdown
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+### Installing the Docker
 
-```markdown
-Syntax highlighted code block
+The first step in using the ACMT is to install the Docker, which creates a container on your local destop and and allows the ACMT to gather measures for your data without sending our data outside of your local machine. 
 
-# Header 1
-## Header 2
-### Header 3
+Instructions for installing the Docker can be found [here](link to Docker install setup)
 
-- Bulleted
-- List
 
-1. Numbered
-2. List
+### Geocoding your dataset
 
-**Bold** and _Italic_ and `Code` text
+Geocode your dataset: If your addresses are not already gecoded to latitude and longitude, you can use the ACMT to do this step! The ACMT Geocoder instructions are [here](link to geocoding vignette)
 
-[Link](url) and ![Image](src)
-```
+``` Markdown
 
-For more details see [Basic writing and formatting syntax](https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax).
 
-### Jekyll Themes
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/aybloom/inspace/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+### Structure your dataset for pulling variables
+
+To ensure the code for pulling the variables will run accurately with your data, your data should be formatted as follows: 
+
+| id  |  lat      | long        | 
+|-----|-----------|-------------|
+| 01  | 47.568922 | -122.306422 |
+| 02  | 47.632264 | -122.314978 |
+| 03  | 47.634820 | -122.292769 |
+| ..  | ......... | ........... |
+
+Ensure your dataset is named 'inspace_dataset', save it in your workspace, and you are ready to start pulling measures!
+
+### Run each step of code 
+
 
 ### Support or Contact
 
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
