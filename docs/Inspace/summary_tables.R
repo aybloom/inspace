@@ -8,102 +8,85 @@ if(dir.exists('~/workspace/Inspace/data_pull_summaries')==FALSE){
 }
 
 # ACS summary tables ####
-tryCatch({write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_acs.csv')%>%dplyr::select(id, radius, year, everything())%>%
-            dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/acs_summary.csv')
-  },error=function(e){cat("ERROR :", conditionMessage(e), "\n")})#this will print any error messages
 
+summary_table_function<-function(dataset_path, summary_path, missingness_path){
+    #if(file.exists(dataset_path) == FALSE){
+    #  write.csv(data.frame(MESSAGE=c('Measures not yet pulled', 'Go back to the corresponding tab in the ShinyApp and pull data')), summary_path)
+    #}
+    if(file.exists(dataset_path) == TRUE){
+        tryCatch(
+          #create the summary table and write to data_summary folder
+          {write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_acs.csv')%>%dplyr::select(id, radius, year, everything())%>%
+                        dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.), summary_path)
+  },error=function(e){cat("ERROR :", conditionMessage(e), "\n")})#this will print any error messages
+          #create the missingness table and write to data_summary folder
+      tryCatch(
+      {write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_acs.csv')%>%dplyr::select(id, radius, year, everything())%>%
+                    dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/acs_missingness.csv')
+      },error=function(e){cat("ERROR :", conditionMessage(e), "\n")})#this will print any error messages     
+      
+}
+  }
 
-tryCatch({write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_acs.csv')%>%dplyr::select(id, radius, year, everything())%>%
-            dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/acs_missingness.csv')
-  },error=function(e){cat("ERROR :", conditionMessage(e), "\n")})#this will print any error messages
+## Run the summary table function for each dataset:
+# ACS
+summary_table_function(dataset_path='~/workspace/Inspace/data_pull_measures/dataset_acs.csv', 
+                       summary_path='~/workspace/Inspace/data_pull_summaries/acs_summary.csv', 
+                       missingness_path='~/workspace/Inspace/data_pull_summaries/acs_missingness.csv')
+# CDC - Places
+summary_table_function(dataset_path='~/workspace/Inspace/data_pull_measures/dataset_cdc.csv', 
+                       summary_path='~/workspace/Inspace/data_pull_summaries/cdc_summary.csv', 
+                       missingness_path='~/workspace/Inspace/data_pull_summaries/cdc_missingness.csv')
+# Walk
+summary_table_function(dataset_path='~/workspace/Inspace/data_pull_measures/dataset_walk.csv', 
+                       summary_path='~/workspace/Inspace/data_pull_summaries/walk_summary.csv', 
+                       missingness_path='~/workspace/Inspace/data_pull_summaries/walk_missingness.csv')
+# Mrfei
+summary_table_function(dataset_path='~/workspace/Inspace/data_pull_measures/dataset_mrfei.csv', 
+                       summary_path='~/workspace/Inspace/data_pull_summaries/mrfei_summary.csv', 
+                       missingness_path='~/workspace/Inspace/data_pull_summaries/mrfei_missingness.csv')
 
-# CDC Places summary table
-tryCatch({write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_cdc.csv')%>%dplyr::select(id, radius, year, everything())%>%
-              dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/cdc_summary.csv')
-  },error=function(e){cat("ERROR :", conditionMessage(e), "\n")})#this will print any error messages
+# Parks
+summary_table_function(dataset_path='~/workspace/Inspace/data_pull_measures/dataset_parks.csv', 
+                       summary_path='~/workspace/Inspace/data_pull_summaries/parks_summary.csv', 
+                       missingness_path='~/workspace/Inspace/data_pull_summaries/parks_missingness.csv')
 
-tryCatch({write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_cdc.csv')%>%dplyr::select(id, radius, year, everything())%>%
-              dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/cdc_missingness.csv')
-  },error=function(e){cat("ERROR :", conditionMessage(e), "\n")})#this will print any error messages
-# Walk summary tables
-  
-  tryCatch({write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_walk.csv')%>%dplyr::select(id, radius, year, everything())%>%
-              dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/walk_summary.csv')
-  },error=function(e){cat("ERROR :", conditionMessage(e), "\n")})#this will print any error messages
-  tryCatch({write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_walk.csv')%>%dplyr::select(id, radius, year, everything())%>%
-              dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/walk_missingness.csv')
-  },error=function(e){cat("ERROR :", conditionMessage(e), "\n")})#this will print any error messages
-  
-  
-#MRFEI summary tables
-  tryCatch({ write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_mrfei.csv')%>%dplyr::select(id, radius, year, everything())%>%
-              dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/mrfei_summary.csv')
-  },error=function(e){cat("ERROR :", conditionMessage(e), "\n")})#this will print any error messages
-    tryCatch({write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_mrfei.csv')%>%dplyr::select(id, radius, year, everything())%>%
-              dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/mrfei_missingness.csv')
-    },error=function(e){cat("ERROR :", conditionMessage(e), "\n")})#this will print any error messages
-  
-# Parks summary tables
-  tryCatch({write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_parks.csv')%>%dplyr::select(id, radius, year, everything())%>%
-              dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/parks_summary.csv')
-  },error=function(e){cat("ERROR :", conditionMessage(e), "\n")})#this will print any error messages
-    tryCatch({ write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_parks.csv')%>%dplyr::select(id, radius, year, everything())%>%
-              dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/parks_missingness.csv')
-    },error=function(e){cat("ERROR :", conditionMessage(e), "\n")})#this will print any error messages
-  
-# Crimerisk summary tables
-  tryCatch({write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')%>%dplyr::select(id, radius, year, everything())%>%
-              dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/crimerisk_summary.csv')
-  },error=function(e){cat("ERROR :", conditionMessage(e), "\n")})#this will print any error messages
-    tryCatch({write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')%>%dplyr::select(id, radius, year, everything())%>%
-              dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/crimerisk_missingness.csv')
-    },error=function(e){cat("ERROR :", conditionMessage(e), "\n")})#this will print any error messages
-  
+# Crimerisk
+summary_table_function(dataset_path='~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv', 
+                       summary_path='~/workspace/Inspace/data_pull_summaries/crimerisk_summary.csv', 
+                       missingness_path='~/workspace/Inspace/data_pull_summaries/crimerisk_missingness.csv')
 
-# Sidewalk summary tables
-  tryCatch({write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_sidewalk.csv')%>%dplyr::select(id, radius, year, everything())%>%
-              dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/sidewalk_summary.csv')
-  },error=function(e){cat("ERROR :", conditionMessage(e), "\n")})#this will print any error messages
-  tryCatch({write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_sidewalk.csv')%>%dplyr::select(id, radius, year, everything())%>%
-              dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/sidewalk_missingness.csv')
-  },error=function(e){cat("ERROR :", conditionMessage(e), "\n")})#this will print any error messages
-  
-# RPP summary tables
-  tryCatch({write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_rpp.csv')%>%dplyr::select(id, year, everything(), -GeoName)%>%
-              dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%mutate(radius='')%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/rpp_summary.csv')
-  },error=function(e){cat("ERROR :", conditionMessage(e), "\n")})#this will print any error messages
-    tryCatch({write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_rpp.csv')%>%dplyr::select(id, year, everything(), -GeoName)%>%
-              dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%mutate(radius='') %>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/rpp_missingness.csv')
-    },error=function(e){cat("ERROR :", conditionMessage(e), "\n")})#this will print any error messages
-  
-# Gentrification summary tables
-  tryCatch({write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')%>%dplyr::select(id, everything())%>%
-              dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%mutate(year='2000 & 2010', radius='') %>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/gentrification_summary.csv')
-  },error=function(e){cat("ERROR :", conditionMessage(e), "\n")})#this will print any error messages
-    tryCatch({write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')%>%dplyr::select(id, everything())%>%
-              dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%mutate(year='2000 & 2010', radius='') %>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/gentrification_missingness.csv')
-    },error=function(e){cat("ERROR :", conditionMessage(e), "\n")})#this will print any error messages
-  
-# NLCD summary tables
-  write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_nlcd.csv')%>%dplyr::select(id, radius, year, everything())%>%
-              mutate_if(is.numeric, round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/nlcd_summary.csv')
-  write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_nlcd.csv')%>%dplyr::select(id, radius, year, everything())%>%
-              mutate_if(is.numeric, round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/nlcd_missingness.csv')
+# Sidewalk
+summary_table_function(dataset_path='~/workspace/Inspace/data_pull_measures/dataset_sidewalk.csv', 
+                       summary_path='~/workspace/Inspace/data_pull_summaries/sidewalk_summary.csv', 
+                       missingness_path='~/workspace/Inspace/data_pull_summaries/sidewalk_missingness.csv')
 
-# Park summary tables
-  tryCatch({write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_parks.csv')%>%dplyr::select(id, radius, year, everything())%>%
-              dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/parks_summary.csv')
-  },error=function(e){cat("ERROR :", conditionMessage(e), "\n")})#this will print any error messages
-  tryCatch({write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_parks.csv')%>%dplyr::select(id, radius, year, everything())%>%
-              dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/parks_missingness.csv')
-  },error=function(e){cat("ERROR :", conditionMessage(e), "\n")})#this will print any error messages
-  
-# County GEOID table
+# RPP
+summary_table_function(dataset_path='~/workspace/Inspace/data_pull_measures/dataset_rpp.csv', 
+                       summary_path='~/workspace/Inspace/data_pull_summaries/rpp_summary.csv', 
+                       missingness_path='~/workspace/Inspace/data_pull_summaries/rpp_missingness.csv')
+
+# Gentrification
+summary_table_function(dataset_path='~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv', 
+                       summary_path='~/workspace/Inspace/data_pull_summaries/gentrification_summary.csv', 
+                       missingness_path='~/workspace/Inspace/data_pull_summaries/gentrification_missingness.csv')
+
+# NLCD
+summary_table_function(dataset_path='~/workspace/Inspace/data_pull_measures/dataset_nlcd.csv', 
+                       summary_path='~/workspace/Inspace/data_pull_summaries/nlcd_summary.csv', 
+                       missingness_path='~/workspace/Inspace/data_pull_summaries/nlcd_missingness.csv')
+
+# County GEOID
+if(file.exists('~/workspace/Inspace/data_pull_measures/dataset_county.csv')==TRUE){
   tryCatch({write.csv(
-    read.csv('~/workspace/Inspace/data_pull_measures/dataset_county.csv')%>%group_by(county_geoid) %>%
-      summarize(GEOID_count=n()), 
-    '~/workspace/Inspace/data_pull_summaries/county_geoid_summary.csv')
-  })
+  read.csv('~/workspace/Inspace/data_pull_measures/dataset_county.csv')%>%group_by(county_geoid) %>%
+    summarize(GEOID_count=n()), 
+  '~/workspace/Inspace/data_pull_summaries/county_geoid_summary.csv')
+},error=function(e){cat("ERROR :", conditionMessage(e), "\n")})#this will print any error messages  
+} 
+if(file.exists('~/workspace/Inspace/data_pull_measures/dataset_county.csv')==FALSE){
+  write.csv(data.frame(MESSAGE=c('Measures not yet pulled', 'Go back to the ACS tab in the ShinyApp and complete step 4')),
+                 '~/workspace/Inspace/data_pull_summaries/county_geoid_summary.csv')}
   
 ### Create pdf of summary tables
 create_report_function<-function(){
