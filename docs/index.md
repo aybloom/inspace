@@ -17,7 +17,7 @@ For this study, partners will be pulling data from the following datasets:
    -  [Gentrification Measure](https://drexel.edu/uhc/resources/briefs/Measure-of-Gentrification-for-Use-in-Longitudinal-Public-Health-Studies-in-the-US/)
 
 
-### Step 1: [Installing the Docker & Setting up the ACMT](https://aybloom.github.io/inspace/Inspace/ACMT-setup-Inspace.html)
+### Step 1: [Installing the Docker & Setting up the ACMT](https://aybloom.github.io/inspace/Inspace_setup/ACMT-setup-Inspace.html)
 
 The first step in using the ACMT is to install the Docker, which creates a container on your local destop and and allows the ACMT to gather measures for your data without sending our data outside of your local machine. Once you install Docker, you will download the ACMT source code and install it. 
 
