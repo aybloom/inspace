@@ -1221,7 +1221,7 @@ output$acs_description<-renderText(acs_description)
 
 load_geocode_acs<-eventReactive(input$loaddata_acs,{
   source('~/workspace/Inspace/data_pull_settings/acs_data_settings.R')
-  loadData('dataset_geocoded.csv')%>%dplyr::select(id, lat, long)
+  loadData('dataset_geocoded.csv')%>%dplyr::select(id, lat, long)%>%filter(!is.na(lat) & !is.na(long))
 })
 
 #pull or create acs data (automatically with load data)
@@ -1401,7 +1401,7 @@ preview_acs<-reactiveValues(data=data.frame())
 
 observeEvent(input$show_data_acs, {
   if(input$show_data_acs=='Show geocoded dataset' & file.exists('~/workspace/Inspace/dataset_geocoded.csv')==TRUE) {
-    preview_acs$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)
+    preview_acs$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)%>%filter(!is.na(lat) & !is.na(long))
   }
   if(file.exists('~/workspace/Inspace/dataset_geocoded.csv')==FALSE){
     (preview_acs$data<-data.frame(message='Geocoded dataset does not yet exist, please upload data proir to pulling environmental measures'))} 
@@ -1453,7 +1453,7 @@ observeEvent(input$status_acs,{
   showNotification(id='process_notif', get_current_id(), type='message')
   
   if(input$show_data_acs=='Show geocoded dataset') {
-    preview_acs$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)
+    preview_acs$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)%>%filter(!is.na(lat) & !is.na(long))
   }
   if(input$show_data_acs=='Show environmental measures data pull' & file.exists('~/workspace/Inspace/data_pull_measures/dataset_acs.csv')==TRUE){
     preview_acs$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_acs.csv')%>%dplyr::select(id, radius, year, everything())%>%
@@ -1490,7 +1490,7 @@ output$walk_description<-renderText(walk_description)
 
 load_geocode_walk<-eventReactive(input$loaddata_walk,{
   source('~/workspace/Inspace/data_pull_settings/walk_data_settings.R')
-  loadData('dataset_geocoded.csv')%>%dplyr::select(id, lat, long)
+  loadData('dataset_geocoded.csv')%>%dplyr::select(id, lat, long)%>%filter(!is.na(lat) &!is.na(long))
   })
 
 #pull or create walk data (automatically with load data)
@@ -1639,7 +1639,7 @@ observeEvent(input$pull_walk,{
 preview_walk<-reactiveValues(data=data.frame())
 observeEvent(input$show_data_walk, {
   if(input$show_data_walk=='Show geocoded dataset' & file.exists('~/workspace/Inspace/dataset_geocoded.csv')==TRUE) {
-    preview_walk$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)
+    preview_walk$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)%>%filter(!is.na(lat) & !is.na(long))
   }
   if(file.exists('~/workspace/Inspace/dataset_geocoded.csv')==FALSE){
     (preview_walk$data<-data.frame(message='Geocoded dataset does not yet exist, please upload data proir to pulling environmental measures'))} 
@@ -1691,7 +1691,7 @@ observeEvent(input$status_walk,{
   showNotification(id='process_notif', get_current_id(), type='message')
   
   if(input$show_data_walk=='Show geocoded dataset') {
-    preview_walk$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)
+    preview_walk$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)%>%filter(!is.na(lat) & !is.na(long))
   }
   if(input$show_data_walk=='Show environmental measures data pull' & file.exists('~/workspace/Inspace/data_pull_measures/dataset_walk.csv')==TRUE){
     preview_walk$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_walk.csv')%>%dplyr::select(id, radius, year, everything())%>%
@@ -1728,7 +1728,7 @@ output$cdc_description<-renderText(cdc_description)
 
 load_geocode_cdc<-eventReactive(input$loaddata_cdc,{
   source('~/workspace/Inspace/data_pull_settings/cdc_data_settings.R')
-  loadData('dataset_geocoded.csv')%>%dplyr::select(id, lat, long)
+  loadData('dataset_geocoded.csv')%>%dplyr::select(id, lat, long)%>%filter(!is.na(lat) &!is.na(long))
 })
 
 #pull or create cdc data (automatically with load data)
@@ -1882,7 +1882,7 @@ preview_cdc<-reactiveValues(data=data.frame())
 
 observeEvent(input$show_data_cdc, {
   if(input$show_data_cdc=='Show geocoded dataset' & file.exists('~/workspace/Inspace/dataset_geocoded.csv')==TRUE) {
-    preview_cdc$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)
+    preview_cdc$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)%>%filter(!is.na(lat) & !is.na(long))
   }
   if(file.exists('~/workspace/Inspace/dataset_geocoded.csv')==FALSE){
     (preview_cdc$data<-data.frame(message='Geocoded dataset does not yet exist, please upload data proir to pulling environmental measures'))} 
@@ -1933,7 +1933,7 @@ observeEvent(input$status_cdc,{
   showNotification(id='process_notif', get_current_id(), type='message')
   
   if(input$show_data_cdc=='Show geocoded dataset') {
-    preview_cdc$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)
+    preview_cdc$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)%>%filter(!is.na(lat) & !is.na(long))
   }
   if(input$show_data_cdc=='Show environmental measures data pull' & file.exists('~/workspace/Inspace/data_pull_measures/dataset_cdc.csv')==TRUE){
     preview_cdc$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_cdc.csv')%>%dplyr::select(id, radius, year, everything())%>%
@@ -1971,7 +1971,7 @@ output$mrfei_description<-renderText(mrfei_description)
 
 load_geocode_mrfei<-eventReactive(input$loaddata_mrfei,{
   source('~/workspace/Inspace/data_pull_settings/mrfei_data_settings.R')
-  loadData('dataset_geocoded.csv')%>%dplyr::select(id, lat, long)
+  loadData('dataset_geocoded.csv')%>%dplyr::select(id, lat, long)%>%filter(!is.na(lat) &!is.na(long))
 })
 
 #pull or create mrfei data (automatically with load data)
@@ -2119,7 +2119,7 @@ preview_mrfei<-reactiveValues(data=data.frame())
 
 observeEvent(input$show_data_mrfei, {
   if(input$show_data_mrfei=='Show geocoded dataset' & file.exists('~/workspace/Inspace/dataset_geocoded.csv')==TRUE) {
-    preview_mrfei$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)
+    preview_mrfei$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)%>%filter(!is.na(lat) & !is.na(long))
   }
   if(file.exists('~/workspace/Inspace/dataset_geocoded.csv')==FALSE){
     (preview_mrfei$data<-data.frame(message='Geocoded dataset does not yet exist, please upload data proir to pulling environmental measures'))} 
@@ -2170,7 +2170,7 @@ observeEvent(input$status_mrfei,{
   showNotification(id='process_notif', get_current_id(), type='message')
   
   if(input$show_data_mrfei=='Show geocoded dataset') {
-    preview_mrfei$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)
+    preview_mrfei$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)%>%filter(!is.na(lat) & !is.na(long))
   }
   if(input$show_data_mrfei=='Show environmental measures data pull' & file.exists('~/workspace/Inspace/data_pull_measures/dataset_mrfei.csv')==TRUE){
     preview_mrfei$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_mrfei.csv')%>%dplyr::select(id, radius, year, everything())%>%
@@ -2209,7 +2209,7 @@ output$parks_description<-renderText(parks_description)
 
 load_geocode_parks<-eventReactive(input$loaddata_parks,{
   source('~/workspace/Inspace/data_pull_settings/park_data_settings.R')
-  loadData('dataset_geocoded.csv')%>%dplyr::select(id, lat, long)
+  loadData('dataset_geocoded.csv')%>%dplyr::select(id, lat, long)%>%filter(!is.na(lat) & !is.na(long))
 })
 
 #pull or create parks data (automatically with load data)
@@ -2370,7 +2370,7 @@ preview_parks<-reactiveValues(data=data.frame())
 
 observeEvent(input$show_data_parks, {
   if(input$show_data_parks=='Show geocoded dataset' & file.exists('~/workspace/Inspace/dataset_geocoded.csv')==TRUE) {
-    preview_parks$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)
+    preview_parks$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)%>%filter(!is.na(lat) & !is.na(long))
   }
   if(file.exists('~/workspace/Inspace/dataset_geocoded.csv')==FALSE){
     (preview_parks$data<-data.frame(message='Geocoded dataset does not yet exist, please upload data proir to pulling environmental measures'))} 
@@ -2421,7 +2421,7 @@ observeEvent(input$status_parks,{
   showNotification(id='process_notif', get_current_id(), type='message')
   
   if(input$show_data_parks=='Show geocoded dataset') {
-    preview_parks$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)
+    preview_parks$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)%>%filter(!is.na(lat) & !is.na(long))
   }
   if(input$show_data_parks=='Show environmental measures data pull' & file.exists('~/workspace/Inspace/data_pull_measures/dataset_parks.csv')==TRUE){
     preview_parks$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_parks.csv')%>%dplyr::select(id, radius, year, everything())%>%
@@ -2461,7 +2461,7 @@ output$crimerisk_description<-renderText(crimerisk_description)
 
 load_geocode_crimerisk<-eventReactive(input$loaddata_crimerisk,{
   source('~/workspace/Inspace/data_pull_settings/crimerisk_data_settings.R')
-  loadData('dataset_geocoded.csv')%>%dplyr::select(id, lat, long)
+  loadData('dataset_geocoded.csv')%>%dplyr::select(id, lat, long)%>%filter(!is.na(lat) &!is.na(long))
 })
 
 #pull or create crimerisk data (automatically with load data)
@@ -2609,7 +2609,7 @@ observeEvent(input$pull_crimerisk,{
 preview_crimerisk<-reactiveValues(data=data.frame())
 observeEvent(input$show_data_crimerisk, {
   if(input$show_data_crimerisk=='Show geocoded dataset' & file.exists('~/workspace/Inspace/dataset_geocoded.csv')==TRUE) {
-    preview_crimerisk$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)
+    preview_crimerisk$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)%>%filter(!is.na(lat) & !is.na(long))
   }
   if(file.exists('~/workspace/Inspace/dataset_geocoded.csv')==FALSE){
     (preview_crimerisk$data<-data.frame(message='Geocoded dataset does not yet exist, please upload data proir to pulling environmental measures'))} 
@@ -2660,7 +2660,7 @@ observeEvent(input$status_crimerisk,{
   showNotification(id='process_notif', get_current_id(), type='message')
   
   if(input$show_data_crimerisk=='Show geocoded dataset') {
-    preview_crimerisk$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)
+    preview_crimerisk$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)%>%filter(!is.na(lat) & !is.na(long))
   }
   if(input$show_data_crimerisk=='Show environmental measures data pull' & file.exists('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')==TRUE){
     preview_crimerisk$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')%>%dplyr::select(id, radius, year, everything())%>%
@@ -2699,7 +2699,7 @@ output$sidewalk_description<-renderText(sidewalk_description)
 
 load_geocode_sidewalk<-eventReactive(input$loaddata_sidewalk,{
   source('~/workspace/Inspace/data_pull_settings/sidewalk_data_settings.R')
-  loadData('dataset_geocoded.csv')%>%dplyr::select(id, lat, long)
+  loadData('dataset_geocoded.csv')%>%dplyr::select(id, lat, long)%>%filter(!is.na(lat) &!is.na(long))
 })
 
 #pull or create sidewalk data (automatically with load data)
@@ -2852,7 +2852,7 @@ preview_sidewalk<-reactiveValues(data=data.frame())
 
 observeEvent(input$show_data_sidewalk, {
   if(input$show_data_sidewalk=='Show geocoded dataset' & file.exists('~/workspace/Inspace/dataset_geocoded.csv')==TRUE) {
-    preview_sidewalk$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)
+    preview_sidewalk$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)%>%filter(!is.na(lat) & !is.na(long))
   }
   if(file.exists('~/workspace/Inspace/dataset_geocoded.csv')==FALSE){
     (preview_sidewalk$data<-data.frame(message='Geocoded dataset does not yet exist, please upload data proir to pulling environmental measures'))} 
@@ -2903,7 +2903,7 @@ observeEvent(input$status_sidewalk,{
   showNotification(id='process_notif', get_current_id(), type='message')
   
   if(input$show_data_sidewalk=='Show geocoded dataset') {
-    preview_sidewalk$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)
+    preview_sidewalk$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)%>%filter(!is.na(lat) & !is.na(long))
   }
   if(input$show_data_sidewalk=='Show environmental measures data pull' & file.exists('~/workspace/Inspace/data_pull_measures/dataset_sidewalk.csv')==TRUE){
     preview_sidewalk$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_sidewalk.csv')%>%dplyr::select(id, radius, year, everything())%>%
@@ -2942,7 +2942,7 @@ output$rpp_description<-renderText(rpp_description)
 
 load_geocode_rpp<-eventReactive(input$loaddata_rpp,{
   source('~/workspace/Inspace/data_pull_settings/rpp_data_settings.R')
-  loadData('dataset_geocoded.csv')%>%dplyr::select(id, lat, long)
+  loadData('dataset_geocoded.csv')%>%dplyr::select(id, lat, long)%>%filter(!is.na(lat) &!is.na(long))
 })
 
 #3. Loop rpp Process ####
@@ -3044,7 +3044,7 @@ preview_rpp<-reactiveValues(data=data.frame())
 
 observeEvent(input$show_data_rpp, {
   if(input$show_data_rpp=='Show geocoded dataset' & file.exists('~/workspace/Inspace/dataset_geocoded.csv')==TRUE) {
-    preview_rpp$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)
+    preview_rpp$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)%>%filter(!is.na(lat) & !is.na(long))
   }
   if(file.exists('~/workspace/Inspace/dataset_geocoded.csv')==FALSE){
     (preview_rpp$data<-data.frame(message='Geocoded dataset does not yet exist, please upload data proir to pulling environmental measures'))} 
@@ -3096,7 +3096,7 @@ observeEvent(input$status_rpp,{
   showNotification(id='process_notif', get_current_id(), type='message')
   
   if(input$show_data_rpp=='Show geocoded dataset') {
-    preview_rpp$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)
+    preview_rpp$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)%>%filter(!is.na(lat) & !is.na(long))
   }
   if(input$show_data_rpp=='Show environmental measures data pull' & file.exists('~/workspace/Inspace/data_pull_measures/dataset_rpp.csv')==TRUE){
     preview_rpp$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_rpp.csv')%>%dplyr::select(id, year, everything())%>%
@@ -3138,7 +3138,7 @@ output$gentrification_description<-renderText(gentrification_description)
 
 load_geocode_gentrification<-eventReactive(input$loaddata_gentrification,{
   source('~/workspace/Inspace/data_pull_settings/gentrification_data_settings.R')
-  loadData('dataset_geocoded.csv')%>%dplyr::select(id, lat, long)
+  loadData('dataset_geocoded.csv')%>%dplyr::select(id, lat, long)%>%filter(!is.na(lat) &!is.na(long))
 })
 
 #3. Loop gentrification Process ####
@@ -3215,7 +3215,7 @@ preview_gentrification<-reactiveValues(data=data.frame())
 
 observeEvent(input$show_data_gentrification, {
   if(input$show_data_gentrification=='Show geocoded dataset' & file.exists('~/workspace/Inspace/dataset_geocoded.csv')==TRUE) {
-    preview_gentrification$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)
+    preview_gentrification$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)%>%filter(!is.na(lat) & !is.na(long))
   }
   if(file.exists('~/workspace/Inspace/dataset_geocoded.csv')==FALSE){
     (preview_gentrification$data<-data.frame(message='Geocoded dataset does not yet exist, please upload data proir to pulling environmental measures'))} 
@@ -3266,7 +3266,7 @@ observeEvent(input$status_gentrification,{
   showNotification(id='process_notif', get_current_id(), type='message')
   
   if(input$show_data_gentrification=='Show geocoded dataset') {
-    preview_gentrification$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)
+    preview_gentrification$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)%>%filter(!is.na(lat) & !is.na(long))
   }
   if(input$show_data_gentrification=='Show environmental measures data pull' & file.exists('~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')==TRUE){
     preview_gentrification$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')%>%dplyr::select(id, everything())%>%
@@ -3309,7 +3309,7 @@ output$nlcd_description<-renderText(nlcd_description)
 
 load_geocode_nlcd<-eventReactive(input$loaddata_nlcd,{
   source('~/workspace/Inspace/data_pull_settings/nlcd_data_settings.R')
-  loadData('dataset_geocoded.csv')%>%dplyr::select(id, lat, long)
+  loadData('dataset_geocoded.csv')%>%dplyr::select(id, lat, long)%>%filter(!is.na(lat) &!is.na(long))
 })
 
 #pull or create nlcd data (automatically with load data)
@@ -3459,7 +3459,7 @@ preview_nlcd<-reactiveValues(data=data.frame())
 
 observeEvent(input$show_data_nlcd, {
   if(input$show_data_nlcd=='Show geocoded dataset' & file.exists('~/workspace/Inspace/dataset_geocoded.csv')==TRUE) {
-    preview_nlcd$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)
+    preview_nlcd$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)%>%filter(!is.na(lat) & !is.na(long))
   }
   if(file.exists('~/workspace/Inspace/dataset_geocoded.csv')==FALSE){
     (preview_nlcd$data<-data.frame(message='Geocoded dataset does not yet exist, please upload data proir to pulling environmental measures'))} 
@@ -3510,7 +3510,7 @@ observeEvent(input$status_nlcd,{
   showNotification(id='process_notif', get_current_id(), type='message')
   
   if(input$show_data_nlcd=='Show geocoded dataset') {
-    preview_nlcd$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)
+    preview_nlcd$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)%>%filter(!is.na(lat) & !is.na(long))
   }
   if(input$show_data_nlcd=='Show environmental measures data pull' & file.exists('~/workspace/Inspace/data_pull_measures/dataset_nlcd.csv')==TRUE){
     preview_nlcd$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_nlcd.csv')%>%dplyr::select(id, radius, year, everything())%>%
