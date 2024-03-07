@@ -1,5 +1,5 @@
 ## Pull all summary tables ####
-source('~/workspace/Inspace/data_pull_settings/shinyapp-functions.R')
+source('~/workspace/Inspace/data_pull_settings/inspace-shinyapp-functions.R')
 
 
 ## create data pull summaries folder if it doesn't exist: 
@@ -16,13 +16,15 @@ summary_table_function<-function(dataset_path, summary_path, missingness_path){
     if(file.exists(dataset_path) == TRUE){
         tryCatch(
           #create the summary table and write to data_summary folder
-          {write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_acs.csv')%>%dplyr::select(id, radius, year, everything())%>%
-                        dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.), summary_path)
+          {write.csv(read.csv(dataset_path)%>%dplyr::select(id, radius, year, everything())%>%
+                        dplyr::select(-one_of('X'))%>%
+                       mutate_if(is.numeric, round, digits=3)%>%table_summary(.), summary_path)
   },error=function(e){cat("ERROR :", conditionMessage(e), "\n")})#this will print any error messages
           #create the missingness table and write to data_summary folder
       tryCatch(
-      {write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_acs.csv')%>%dplyr::select(id, radius, year, everything())%>%
-                    dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/acs_missingness.csv')
+      {write.csv(read.csv(dataset_path)%>%dplyr::select(id, radius, year, everything())%>%
+                    dplyr::select(-one_of('X'))%>%
+                   mutate_if(is.numeric, round, digits=3)%>%table_missingness(.),missingness_path)
       },error=function(e){cat("ERROR :", conditionMessage(e), "\n")})#this will print any error messages     
       
 }
