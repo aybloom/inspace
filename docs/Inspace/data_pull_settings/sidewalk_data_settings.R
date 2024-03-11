@@ -47,10 +47,10 @@ dataset_sidewalk<-dataset_sidewalk%>%
          prop_crosswalk=total_crosswalk/total_num)
 
 #calculate mean prop_sidewalk and mean prop_crosswalk
-mean.sidewalk=mean(dataset_sidewalk$prop_sidewalk)
-mean.crosswalk=mean(dataset_sidewalk$prop_crosswalk)
-sd.sidewalk=sd(dataset_sidewalk$prop_sidewalk)
-sd.crosswalk=sd(dataset_sidewalk$prop_crosswalk)
+mean.sidewalk=mean(dataset_sidewalk$prop_sidewalk, na.rm = TRUE)
+mean.crosswalk=mean(dataset_sidewalk$prop_crosswalk, na.rm=TRUE)
+sd.sidewalk=sd(dataset_sidewalk$prop_sidewalk, na.rm=TRUE)
+sd.crosswalk=sd(dataset_sidewalk$prop_crosswalk, na.rm=TRUE)
 
 #calculate sidewalk and crosswalk z-scores
 dataset_sidewalk<- dataset_sidewalk%>%
