@@ -14,7 +14,7 @@ process_gentrification<-function(){
   raw_gent_data<-read.csv('~/workspace/Inspace/downloaded_gentrification.csv')
   
   processed_gentrification<- raw_gent_data %>%
-    rename(GEOID10=geoid10)%>%
+    dplyr::rename(GEOID10=geoid10)%>%
     mutate(GEOID10=ifelse(GEOID10<10000000000, as.character(paste0('0', as.character(GEOID10), "")), as.character(GEOID10))) #convert to GEOID to character for joining data, need to add an extra 0 in front for some values
 }
 
@@ -29,7 +29,7 @@ states <- as.data.frame( st_join(points_sf, states_sf, join = st_intersects) ) %
 #download tract shapefile
 for(s in 1:length(states$state_abbr)){
   state<-states$state_abbr[s]
-tracts.state<-tracts(year=2010, 
+tracts.state<-tigris::tracts(year=2010, 
                     state=state)
 if(s>1){tracts.2010<-rbind(tracts.2010, tracts.state)}
 if(s==1){tracts.2010<-tracts.state}
@@ -50,7 +50,7 @@ process_gentrification()
 raw_gent_data<-read.csv('~/workspace/Inspace/downloaded_gentrification.csv')
 
 processed_gentrification<- raw_gent_data %>%
-  rename(GEOID10=geoid10)%>%
+  dplyr::rename(GEOID10=geoid10)%>%
   mutate(GEOID10=ifelse(GEOID10<10000000000, as.character(paste0('0', as.character(GEOID10), "")), as.character(GEOID10))) #convert to GEOID to character for joining data, need to add an extra 0 in front for some values
 
 dataset_gentrification<-merge(intersected_tracts, processed_gentrification, by='GEOID10', all.x=TRUE) %>% dplyr::select(-GEOID10)

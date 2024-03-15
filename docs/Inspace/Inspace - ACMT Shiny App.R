@@ -10,7 +10,7 @@ future::plan(multisession)
 source('~/workspace/setup-acmt.R')
 source('external_data-presets.R')
 source('external_data-file_loader.R')
-source('~/workspace/Inspace/data_pull_settings/shinyapp-functions.R')
+source('~/workspace/Inspace/data_pull_settings/inspace-shinyapp-functions.R')
 source('~/workspace/Inspace/data_pull_settings/inspace_external_data_functions.R')
 source('~/workspace/Inspace/data_pull_settings/cdc_data_settings.R')
 source('~/workspace/Inspace/data_pull_settings/acs_data_settings.R')
@@ -22,6 +22,8 @@ source('~/workspace/Inspace/data_pull_settings/sidewalk_data_settings.R')
 source('~/workspace/Inspace/data_pull_settings/rpp_data_settings.R')
 source('~/workspace/Inspace/data_pull_settings/gentrification_data_settings.R')
 source('~/workspace/Inspace/data_pull_settings/nlcd_data_settings.R')
+
+library(dplyr)
 
 data.preview.choices<-c('Show geocoded dataset', 'Show environmental measures data pull', 'Show measure summary', 'Show missingness/count summary')
 
@@ -856,14 +858,13 @@ mainPanel(
      em('The table below shows your current progress for each dataset'),
      fluidRow(
        column(width=2,
-       actionButton('progress_button', 'Show/Refresh Progress')),
+       actionButton('refreshprogress', 'Refresh Progress Summary')),
        column(width=3,
        actionButton('create_report', 'Create final summary report', 
                           style="color: #fff; background: #059501"))
      ),
      fluidRow(
-       div(DT::dataTableOutput('progress_summary'), style = "padding: 10px; font-size: 100%; width: 30%")
-     )
+       tags$div(style='padding:30px;padding-top:0px;font-size:85%; width:40%', uiOutput("tables"))     )
      
     )
 )
@@ -1338,10 +1339,9 @@ observeEvent(input$pull_acs,{
     }
     
     # export summary tables
-    write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_acs.csv')%>%dplyr::select(id, radius, year, everything())%>%
-                dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/acs_summary.csv')
-    write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_acs.csv')%>%dplyr::select(id, radius, year, everything())%>%
-                dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/acs_missingness.csv')
+    summary_table_function(dataset_path='~/workspace/Inspace/data_pull_measures/dataset_acs.csv', 
+                           summary_path='~/workspace/Inspace/data_pull_summaries/acs_summary.csv', 
+                           missingness_path='~/workspace/Inspace/data_pull_summaries/acs_missingness.csv')
     
     #Some results
   }) %...>% result_val()
@@ -1607,10 +1607,9 @@ observeEvent(input$pull_walk,{
     }
     
     # export summary tables
-    write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_walk.csv')%>%dplyr::select(id, radius, year, everything())%>%
-                dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/walk_summary.csv')
-    write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_walk.csv')%>%dplyr::select(id, radius, year, everything())%>%
-                dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/walk_missingness.csv')
+    summary_table_function(dataset_path='~/workspace/Inspace/data_pull_measures/dataset_walk.csv', 
+                           summary_path='~/workspace/Inspace/data_pull_summaries/walk_summary.csv', 
+                           missingness_path='~/workspace/Inspace/data_pull_summaries/walk_missingness.csv')
     
     #Some results
   }) %...>% result_val()
@@ -1650,7 +1649,7 @@ observeEvent(input$show_data_walk, {
   }
  if(input$show_data_walk=='Show measure summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_walk.csv')==TRUE){
      preview_walk$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_walk.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.)
+     mutate_if(is.numeric, round, digits=3)%>%table_summary()
   }
  if(input$show_data_walk=='Show missingness/count summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_walk.csv')==TRUE){
     preview_walk$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_walk.csv')%>%dplyr::select(id, radius, year, everything())%>%
@@ -1847,13 +1846,9 @@ observeEvent(input$pull_cdc,{
     }
     
     # export summary tables
-   suppressWarnings(
-     write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_cdc.csv')%>%dplyr::select(id, radius, year, everything())%>%
-                dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/cdc_summary.csv'))
-   suppressWarnings(
-    write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_cdc.csv')%>%dplyr::select(id, radius, year, everything())%>%
-                dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/cdc_missingness.csv')
-   )
+    summary_table_function(dataset_path='~/workspace/Inspace/data_pull_measures/dataset_cdc.csv', 
+                           summary_path='~/workspace/Inspace/data_pull_summaries/cdc_summary.csv', 
+                           missingness_path='~/workspace/Inspace/data_pull_summaries/cdc_missingness.csv')
     #Some results
   }) %...>% result_val()
   
@@ -2087,10 +2082,9 @@ observeEvent(input$pull_mrfei,{
       
     }
     # export summary tables
-    write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_mrfei.csv')%>%dplyr::select(id, radius, year, everything())%>%
-                dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/mrfei_summary.csv')
-    write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_mrfei.csv')%>%dplyr::select(id, radius, year, everything())%>%
-                dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/mrfei_missingness.csv')
+    summary_table_function(dataset_path='~/workspace/Inspace/data_pull_measures/dataset_mrfei.csv', 
+                           summary_path='~/workspace/Inspace/data_pull_summaries/mrfei_summary.csv', 
+                           missingness_path='~/workspace/Inspace/data_pull_summaries/mrfei_missingness.csv')
     #Some results
   }) %...>% result_val()
   
@@ -2337,10 +2331,9 @@ observeEvent(input$pull_parks,{
     }
     
     # export summary tables
-    write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_parks.csv')%>%dplyr::select(id, radius, year, everything())%>%
-                dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/parks_summary.csv')
-    write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_parks.csv')%>%dplyr::select(id, radius, year, everything())%>%
-                dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/parks_missingness.csv')
+    summary_table_function(dataset_path='~/workspace/Inspace/data_pull_measures/dataset_parks.csv', 
+                           summary_path='~/workspace/Inspace/data_pull_summaries/parks_summary.csv', 
+                           missingness_path='~/workspace/Inspace/data_pull_summaries/parks_missingness.csv')
     
     #Some results
   }) %...>% result_val()
@@ -2578,10 +2571,9 @@ observeEvent(input$pull_crimerisk,{
     }
     
     # export summary tables
-    write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')%>%dplyr::select(id, radius, year, everything())%>%
-                dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/crimerisk_summary.csv')
-    write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')%>%dplyr::select(id, radius, year, everything())%>%
-                dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/crimerisk_missingness.csv')
+    summary_table_function(dataset_path='~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv', 
+                           summary_path='~/workspace/Inspace/data_pull_summaries/crimerisk_summary.csv', 
+                           missingness_path='~/workspace/Inspace/data_pull_summaries/crimerisk_missingness.csv')
     #Some results
   }) %...>% result_val()
   
@@ -2819,10 +2811,9 @@ observeEvent(input$pull_sidewalk,{
     write.csv(sidewalk_zscores(read.csv('~/workspace/Inspace/data_pull_measures/dataset_sidewalk.csv')), '~/workspace/Inspace/data_pull_measures/dataset_sidewalk.csv')
     
     # export summary tables
-    write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_sidewalk.csv')%>%dplyr::select(id, radius, year, everything())%>%
-                dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/sidewalk_summary.csv')
-    write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_sidewalk.csv')%>%dplyr::select(id, radius, year, everything())%>%
-                dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/sidewalk_missingness.csv')
+    summary_table_function(dataset_path='~/workspace/Inspace/data_pull_measures/dataset_sidewalk.csv', 
+                           summary_path='~/workspace/Inspace/data_pull_summaries/sidewalk_summary.csv', 
+                           missingness_path='~/workspace/Inspace/data_pull_summaries/sidewalk_missingness.csv')
     
     #Some results
   }) %...>% result_val()
@@ -3010,10 +3001,9 @@ observeEvent(input$pull_rpp,{
     fire_running('complete')
       
     # export summary tables
-    write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_rpp.csv')%>%dplyr::select(id, year, everything(), -GeoName)%>%
-                dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%mutate(radius='')%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/rpp_summary.csv')
-    write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_rpp.csv')%>%dplyr::select(id, year, everything(), -GeoName)%>%
-                dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%mutate(radius='') %>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/rpp_missingness.csv')
+    summary_table_function(dataset_path='~/workspace/Inspace/data_pull_measures/dataset_rpp.csv', 
+                           summary_path='~/workspace/Inspace/data_pull_summaries/rpp_summary.csv', 
+                           missingness_path='~/workspace/Inspace/data_pull_summaries/rpp_missingness.csv')
     
     #Some results
   }) %...>% result_val()
@@ -3181,11 +3171,9 @@ observeEvent(input$pull_gentrification,{
     write.csv(dataset_gentrification, '~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')
     
     # export summary tables
-    write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')%>%dplyr::select(id, radius, year, everything())%>%
-                dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/gentrification_summary.csv')
-    write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')%>%dplyr::select(id, radius, year, everything())%>%
-                dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/gentrification_missingness.csv')
-    
+    summary_table_function(dataset_path='~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv', 
+                           summary_path='~/workspace/Inspace/data_pull_summaries/gentrification_summary.csv', 
+                           missingness_path='~/workspace/Inspace/data_pull_summaries/gentrification_missingness.csv')
     #Some results
   }) %...>% result_val()
   
@@ -3426,10 +3414,9 @@ observeEvent(input$pull_nlcd,{
       
     }
     # export summary tables
-    write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_nlcd.csv')%>%dplyr::select(id, radius, year, everything())%>%
-                mutate_if(is.numeric, round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/nlcd_summary.csv')
-    write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_nlcd.csv')%>%dplyr::select(id, radius, year, everything())%>%
-                mutate_if(is.numeric, round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/nlcd_missingness.csv')
+    summary_table_function(dataset_path='~/workspace/Inspace/data_pull_measures/dataset_nlcd.csv', 
+                           summary_path='~/workspace/Inspace/data_pull_summaries/nlcd_summary.csv', 
+                           missingness_path='~/workspace/Inspace/data_pull_summaries/nlcd_missingness.csv')
     
     #Some results
   }) %...>% result_val()
@@ -3545,56 +3532,54 @@ observeEvent(input$stop_nlcd,{
 
 
 #### Progress Table ####
-progress.table<-reactiveValues(data=data.frame(Status='Click the refresh progress button to show current progress'))
-
-observeEvent(input$progress_button, {
-  print(length(input$selectyear_acs))
-  if(file.exists('~/workspace/Inspace/dataset_geocoded.csv') == TRUE){
-  total.participants<-nrow(read.csv('~/workspace/Inspace/dataset_geocoded.csv') %>% filter(!is.na(lat)) %>% distinct())} 
-  if(file.exists('~/workspace/Inspace/dataset_geocoded.csv') == FALSE){
-    total.participants<-0
+# create the progress summmary function #  
+progress_summary<-function(){  
+  
+  files <- list.files(path="~/workspace/Inspace/data_pull_measures", pattern="dataset", full.names=TRUE)
+  files<-files[!grepl("county", files)]
+  
+  if(length(files)==0){
+    data_summary<-list(Status=data.frame(total_n='No data pulled'))
   }
-  acs<-progress.summary('dataset_acs.csv')
-  walk<-progress.summary('dataset_walk.csv')
-  cdc<-progress.summary('dataset_cdc.csv')
-  nlcd<-progress.summary('dataset_nlcd.csv')
-  mrfei<-progress.summary('dataset_mrfei.csv')
-  parkserve<-progress.summary('dataset_parks.csv')
-  crimerisk<-progress.summary('dataset_crimerisk.csv')
-  sidewalk<-progress.summary('dataset_sidewalk.csv')
-  rpp<-progress.summary('dataset_rpp.csv')
-  gentrification<-progress.summary('dataset_gentrification.csv')
   
-  dataset=c('ACS', 'Walkability', 'CDC Places', 'NLCD', 'mRFEI', 'ParkServe', 'CrimeRisk', 'Sidewalks', 'RPP', 'Gentrification')
-  total_complete<-c(acs, walk, cdc, nlcd, mrfei, parkserve, crimerisk, sidewalk, rpp, gentrification)
-  total_expected<-c((total.participants*length(input$selectradii_acs)*length(input$selectyear_acs)), #ACS
-                    (total.participants*length(input$selectradii_walk)*length(input$selectyear_walk)), #WALKABILITY
-                    (total.participants*length(input$selectradii_nlcd)*length(input$selectyear_nlcd)), #CDC PLACES
-                    (total.participants*length(input$selectradii_acs)*length(input$selectyear_acs)), #NLCD
-                    
-                    (total.participants*length(input$selectradii_mrfei)*length(input$selectyear_mrfei)), #mRFEI
-                    (total.participants*length(input$selectradii_parks)*length(input$selectyear_parks)), #ParkServe
-                    (total.participants*length(input$selectradii_crimerisk)*length(input$selectyear_crimerisk)), #CrimeRisk
-                    (total.participants*length(input$selectradii_sidewalk)*length(input$selectyear_sidewalk)), #Sidewalks
-                    (total.participants*length(input$selectyear_rpp)), #RPP
-                    (total.participants)) #Gentrification
-
-  progress.table$data=data.frame(dataset, total_complete, total_expected)
-  progress.table$data$percent.complete<-round(total_complete/total_expected, 2)
-  colnames(progress.table$data)<-c('Dataset', 'Total # Complete', 'Total #', 'Proportion Complete')
-
-  output$progress_summary<-DT::renderDataTable({progress.table$data}, editable=FALSE, 
-                                               rownames=FALSE,
-                                               options = list(
-                                                 searching = FALSE,
-                                                 pageLength = 10,
-                                                 autowidth=FALSE,
-                                                 scrollX=TRUE
-                                               )
-  )
+  if(length(files)>0){
+    #get dataset names
+    dataset_names<-lapply(files, function(x) {
+      toupper(gsub("\\..*", "", str_replace(x, '(.*?)dataset_(.*?)', ''))) # get dataset name
+    })
+    
+    data_summary<-lapply(files, function(x) {
+      t <- read.csv(x, header=TRUE) # load file
+      # apply function
+      if('radius' %in% colnames(t)){
+      t %>% group_by(year, radius) %>% dplyr::summarise(total_n=n())}
+      else if(!('radius' %in% colnames(t)) & 'year' %in% colnames(t)){
+        t%>%group_by(year) %>% dplyr::summarise(total_n=n())
+      }
+    })
+    
+    
+  names(data_summary)<-dataset_names
+  }
+  lapply(names(data_summary), function(x) {
+    table_title<-as.character(x)
+    output[[x]] = renderDataTable({data_summary[[x]]}, 
+                                  editable=FALSE, rownames=FALSE,
+                                  caption=table_title,
+                                  options=list(dom = 't'))
+  })
   
+  output$tables <- renderUI({
+    lapply(names(data_summary), dataTableOutput)
+  })
+}
 
-})
+#show table when the page loads
+progress_summary()
+
+#refresh table with the button
+observeEvent(input$refreshprogress, {
+  progress_summary()})
 
 observeEvent(input$create_report, {
   withProgress(

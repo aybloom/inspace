@@ -13,17 +13,20 @@ summary_table_function<-function(dataset_path, summary_path, missingness_path){
     #if(file.exists(dataset_path) == FALSE){
     #  write.csv(data.frame(MESSAGE=c('Measures not yet pulled', 'Go back to the corresponding tab in the ShinyApp and pull data')), summary_path)
     #}
+        
+      summary_vars<-c('year', 'radius')
+      
     if(file.exists(dataset_path) == TRUE){
         tryCatch(
           #create the summary table and write to data_summary folder
-          {write.csv(read.csv(dataset_path)%>%dplyr::select(id, radius, year, everything())%>%
-                        dplyr::select(-one_of('X'))%>%
+          {write.csv(read.csv(dataset_path)%>%dplyr::select(id, any_of(summary_vars), everything())%>%
+                        dplyr::select(-any_of('X'))%>%
                        mutate_if(is.numeric, round, digits=3)%>%table_summary(.), summary_path)
   },error=function(e){cat("ERROR :", conditionMessage(e), "\n")})#this will print any error messages
           #create the missingness table and write to data_summary folder
       tryCatch(
-      {write.csv(read.csv(dataset_path)%>%dplyr::select(id, radius, year, everything())%>%
-                    dplyr::select(-one_of('X'))%>%
+      {write.csv(read.csv(dataset_path)%>%dplyr::select(id, any_of(summary_vars), everything())%>%
+                    dplyr::select(-any_of('X'))%>%
                    mutate_if(is.numeric, round, digits=3)%>%table_missingness(.),missingness_path)
       },error=function(e){cat("ERROR :", conditionMessage(e), "\n")})#this will print any error messages     
       
@@ -82,7 +85,7 @@ summary_table_function(dataset_path='~/workspace/Inspace/data_pull_measures/data
 if(file.exists('~/workspace/Inspace/data_pull_measures/dataset_county.csv')==TRUE){
   tryCatch({write.csv(
   read.csv('~/workspace/Inspace/data_pull_measures/dataset_county.csv')%>%group_by(county_geoid) %>%
-    summarize(GEOID_count=n()), 
+    dplyr::summarise(GEOID_count=n()), 
   '~/workspace/Inspace/data_pull_summaries/county_geoid_summary.csv')
 },error=function(e){cat("ERROR :", conditionMessage(e), "\n")})#this will print any error messages  
 } 
