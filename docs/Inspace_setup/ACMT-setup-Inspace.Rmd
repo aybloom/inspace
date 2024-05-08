@@ -134,7 +134,7 @@ data.frame(measures$names, round(measures$values, 2))
 ### 8. Download Inspace Code
     
   * When you are ready to start working with your own dataset, you will need to first download the Inspace code that you will use.*
-  * Navigate click this link to download a zipped folder with the Inspace code it in: https://minhaskamal.github.io/DownGit/#/home?url=https://github.com/aybloom/inspace/tree/main/docs/Inspace
+  * Navigate click this link to download a zipped folder with the Inspace code it in: https://github.com/aybloom/ACMT_Inspace/archive/refs/heads/main.zip
   
   * Leave the downloaded folder zipped, then navigate back to your Rstudio session in your browser.
   * In the Workspace folder, click the 'Upload' button and navigate to the zipped folder you just downloaded. Select and upload the folder.
