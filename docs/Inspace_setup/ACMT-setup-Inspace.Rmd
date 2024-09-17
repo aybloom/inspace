@@ -16,6 +16,17 @@ library(dplyr)
 
 ### 1. Install the Docker
 
+**If you are not the admin on your computer, you must have IT install Docker and add you to the docker-user group**
+
+*Adding non-admin users to the Docker User group*
+
+1.	Run Computer Management as an administrator
+2.	Navigate to Local Users and Groups > Groups > docker-users
+3.	Right-click to add the user to the group
+4.	Sign out and sign back in for the changes to take effect.
+
+**If you have administrative privileges, you can download and install Docker yourself:**
+
 *	Download and install the Docker
   +	Go to https://www.docker.com/
   +	Click on the “Get Started” button in the top right corner
