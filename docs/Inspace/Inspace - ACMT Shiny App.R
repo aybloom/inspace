@@ -1,6 +1,6 @@
 ##This should detect and install missing packages before loading them####
 
-list.of.packages <- c("shiny","ggmap", "excelR", 'rhandsontable', 'DT', 'tidycensus', 'tidyverse', 'dplyr', 'janitor', 'reshape2', 
+list.of.packages <- c("shiny","ggmap", "excelR", 'rhandsontable', 'DT', 'tidycensus', 'tidyverse', 'dplyr', 'janitor', 'reshape2', 'tidyselect',
                       'promises', 'future', 'shinythemes', 'future', 'gridExtra')
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
@@ -10,6 +10,7 @@ future::plan(multisession)
 source('~/workspace/setup-acmt.R')
 source('external_data-presets.R')
 source('external_data-file_loader.R')
+source('~/workspace/Inspace/summary_tables.R')
 source('~/workspace/Inspace/data_pull_settings/inspace-shinyapp-functions.R')
 source('~/workspace/Inspace/data_pull_settings/inspace_external_data_functions.R')
 source('~/workspace/Inspace/data_pull_settings/cdc_data_settings.R')
@@ -24,8 +25,9 @@ source('~/workspace/Inspace/data_pull_settings/gentrification_data_settings.R')
 source('~/workspace/Inspace/data_pull_settings/nlcd_data_settings.R')
 
 library(dplyr)
+library(magrittr)
 
-data.preview.choices<-c('Show geocoded dataset', 'Show environmental measures data pull', 'Show measure summary', 'Show missingness/count summary')
+data.preview.choices<-c('Show geocoded dataset', 'Show environmental measures data pull', 'Show missingness/count summary')
 
 ### SHINY UI ####
 ui<-shinyUI(
@@ -1624,7 +1626,7 @@ observeEvent(input$pull_walk,{
                     showNotification(e$message, type='warning', id='status_notif')
                   })
   
-  # After the promise has been evaluated set nclicks to 0 to allow for anlother Run
+  # After the promise has been evaluated set nclicks to 0 to allow for another Run
   result <- finally(result,
                     function(){
                       fire_ready() 
@@ -2455,7 +2457,7 @@ output$crimerisk_description<-renderText(crimerisk_description)
 
 load_geocode_crimerisk<-eventReactive(input$loaddata_crimerisk,{
   source('~/workspace/Inspace/data_pull_settings/crimerisk_data_settings.R')
-  loadData('dataset_geocoded.csv')%>%dplyr::select(id, lat, long)%>%filter(!is.na(lat) &!is.na(long))
+  loadData('dataset_geocoded.csv')%>%dplyr::select(id, lat, long)%>%filter(!is.na(lat) &!is.na(long)) 
 })
 
 #pull or create crimerisk data (automatically with load data)
@@ -2553,7 +2555,7 @@ observeEvent(input$pull_crimerisk,{
             suppressMessages(
               suppressWarnings(
                 environmental_measures<-get_acmt_standard_array(long=longitude, lat=latitude, radius_meters = radius, year=year, codes_of_acs_variables_to_get = NULL, 
-                                                                external_data_name_to_info_list=external_data_name_to_info_list, fill_missing_GEOID_with_zero = TRUE)
+                                                                external_data_name_to_info_list=external_data_name_to_info_list, fill_missing_GEOID_with_zero = FALSE)
               )
             )
             crimerisk_measures<-environmental_measures %>% t %>% data.frame %>%row_to_names(row_number = 1)%>%mutate(id=id, year=year, radius=radius)
@@ -2599,30 +2601,52 @@ observeEvent(input$pull_crimerisk,{
 })
 
 #4. Show crimerisk table & Status ####
+file_exists_geocoded <- reactive({
+  file.exists('~/workspace/Inspace/dataset_geocoded.csv')
+})
+
+file_exists_measures <- reactive({
+  file.exists('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')
+})
+
+
 preview_crimerisk<-reactiveValues(data=data.frame())
 observeEvent(input$show_data_crimerisk, {
-  if(input$show_data_crimerisk=='Show geocoded dataset' & file.exists('~/workspace/Inspace/dataset_geocoded.csv')==TRUE) {
+  if(input$show_data_crimerisk=='Show geocoded dataset' && 
+     #file.exists('~/workspace/Inspace/dataset_geocoded.csv')==TRUE)
+     file_exists_geocoded() ) {
     preview_crimerisk$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)%>%filter(!is.na(lat) & !is.na(long))
   }
-  if(file.exists('~/workspace/Inspace/dataset_geocoded.csv')==FALSE){
+  if(
+    #file.exists('~/workspace/Inspace/dataset_geocoded.csv')==FALSE){
+    !file_exists_geocoded()){
     (preview_crimerisk$data<-data.frame(message='Geocoded dataset does not yet exist, please upload data proir to pulling environmental measures'))} 
-  if(input$show_data_crimerisk=='Show environmental measures data pull' & file.exists('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')==TRUE){
-    preview_crimerisk$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')%>%dplyr::select(id, radius, year, everything())%>%
+  
+  if(input$show_data_crimerisk=='Show environmental measures data pull' && 
+     #file.exists('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')==TRUE){
+    file_exists_measures()){
+     preview_crimerisk$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')%>%dplyr::select(id, radius, year, everything())%>%
       #dplyr::select(-any_of('X'))%>%
       mutate_if(is.numeric, round, digits=3)#%>%dplyr::select(id, radius, year)%>%tail(10)
   }
-  if(input$show_data_crimerisk=='Show measure summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')==TRUE){
-    preview_crimerisk$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')%>%dplyr::select(id, radius, year, everything())%>%
+  if(input$show_data_crimerisk=='Show measure summary'&& 
+     #file.exists('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')==TRUE){
+    file_exists_measures()){
+     preview_crimerisk$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')%>%dplyr::select(id, radius, year, everything())%>%
       #dplyr::select(-any_of('X'))%>%
       mutate_if(is.numeric, round, digits=3)%>%table_summary(.)
   }
-  if(input$show_data_crimerisk=='Show missingness/count summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')==TRUE){
-    preview_crimerisk$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')%>%dplyr::select(id, radius, year, everything())%>%
+  if(input$show_data_crimerisk=='Show missingness/count summary'&& 
+     #file.exists('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')==TRUE){
+    file_exists_measures() ) {
+     preview_crimerisk$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')%>%dplyr::select(id, radius, year, everything())%>%
       #dplyr::select(-any_of('X'))%>%
       mutate_if(is.numeric, round, digits=3)%>%table_missingness(.)
   }
-  if(input$show_data_crimerisk !='Show geocoded dataset' &file.exists('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')==FALSE){
-    preview_crimerisk$data=data.frame(message='Dataframe not yet created, click the Pull data button to create dataset and begin pulling environmental measures')}
+  if(input$show_data_crimerisk !='Show geocoded dataset' &&
+     #file.exists('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')==FALSE){
+    !file_exists_measures() ) {
+     preview_crimerisk$data=data.frame(message='Dataframe not yet created, click the Pull data button to create dataset and begin pulling environmental measures')}
   
 })
 
@@ -2655,24 +2679,24 @@ observeEvent(input$status_crimerisk,{
   showNotification(id='status_notif', get_status(), type='message')
   showNotification(id='process_notif', get_current_id(), type='message')
   
-  if(input$show_data_crimerisk=='Show geocoded dataset') {
-    preview_crimerisk$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)%>%filter(!is.na(lat) & !is.na(long))
-  }
-  if(input$show_data_crimerisk=='Show environmental measures data pull' & file.exists('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')==TRUE){
-    preview_crimerisk$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-any_of('X'))%>%mutate_if(is.numeric, round, digits=3)#%>%dplyr::select(id, radius, year)%>%tail(10)
-  }
-  if(input$show_data_crimerisk=='Show measure summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')==TRUE){
-    preview_crimerisk$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-any_of('X'))%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.)
-  }
-  if(input$show_data_crimerisk=='Show missingness/count summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')==TRUE){
-    preview_crimerisk$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-any_of('X'))%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.)
-  }
-  if(input$show_data_crimerisk !='Show geocoded dataset' &file.exists('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')==FALSE){
-    preview_crimerisk$data=data.frame(message='Dataframe not yet created, click the Pull data button to create dataset and begin pulling environmental measures')}
-  
+  # if(input$show_data_crimerisk=='Show geocoded dataset') {
+  #   preview_crimerisk$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)%>%filter(!is.na(lat) & !is.na(long))
+  # }
+  # if(input$show_data_crimerisk=='Show environmental measures data pull' & file.exists('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')==TRUE){
+  #   preview_crimerisk$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')%>%dplyr::select(id, radius, year, everything())%>%
+  #     dplyr::select(-tidyselect::any_of('X'))%>%mutate_if(is.numeric, round, digits=3)#%>%dplyr::select(id, radius, year)%>%tail(10)
+  # }
+  # if(input$show_data_crimerisk=='Show measure summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')==TRUE){
+  #   preview_crimerisk$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')%>%dplyr::select(id, radius, year, everything())%>%
+  #     dplyr::select(-tidyselect::any_of('X'))%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.)
+  # }
+  # if(input$show_data_crimerisk=='Show missingness/count summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')==TRUE){
+  #   preview_crimerisk$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')%>%dplyr::select(id, radius, year, everything())%>%
+  #     dplyr::select(-tidyselect::any_of('X'))%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.)
+  # }
+  # if(input$show_data_crimerisk !='Show geocoded dataset' &file.exists('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')==FALSE){
+  #   preview_crimerisk$data=data.frame(message='Dataframe not yet created, click the Pull data button to create dataset and begin pulling environmental measures')}
+  # 
 })
 
 #save uploaded folder to the Inspace folder
@@ -3058,7 +3082,7 @@ observeEvent(input$show_data_rpp, {
   }
   if(input$show_data_rpp=='Show missingness/count summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_rpp.csv')==TRUE){
     preview_rpp$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_rpp.csv')%>%dplyr::select(id, year, everything())%>%
-      dplyr::select(-any_of('X'))%>%dplyr::select(-GEOID_pp, -state_geoid, -msa_geoid, -GeoName)%>% group_by(year) %>% summarise(count_na=sum(is.na(.)), 
+      dplyr::select(-any_of('X'))%>%dplyr::select(-GEOID_pp, -state_geoid, -msa_geoid, -GeoName)%>% group_by(year) %>%dplyr::summarise(count_na=sum(is.na(.)), 
                                                                                                                                count_total=n())%>%arrange(year)
   }
   if(input$show_data_rpp !='Show geocoded dataset' &file.exists('~/workspace/Inspace/data_pull_measures/dataset_rpp.csv')==FALSE){
@@ -3108,7 +3132,7 @@ observeEvent(input$status_rpp,{
   }
   if(input$show_data_rpp=='Show missingness/count summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_rpp.csv')==TRUE){
     preview_rpp$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_rpp.csv')%>%dplyr::select(id, year, everything())%>%
-      dplyr::select(-any_of('X'))%>%dplyr::select(-GEOID_pp, -state_geoid, -msa_geoid, -GeoName)%>% group_by(year) %>% summarise(count_na=sum(is.na(.)), 
+      dplyr::select(-any_of('X'))%>%dplyr::select(-GEOID_pp, -state_geoid, -msa_geoid, -GeoName)%>% group_by(year) %>% dplyr::summarise(count_na=sum(is.na(.)), 
                                                                                                                        count_total=n())%>%arrange(year)
   }
   if(input$show_data_rpp !='Show geocoded dataset' &file.exists('~/workspace/Inspace/data_pull_measures/dataset_rpp.csv')==FALSE){
@@ -3227,7 +3251,7 @@ observeEvent(input$show_data_gentrification, {
   }
   if(input$show_data_gentrification=='Show missingness/count summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')==TRUE){
     preview_gentrification$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')%>%dplyr::select(id, everything())%>%
-      dplyr::select(-any_of('X'))%>%  summarise(count_na=sum(is.na(.)), count_total=n())
+      dplyr::select(-any_of('X'))%>% dplyr::summarise(count_na=sum(is.na(.)), count_total=n())
   }
   if(input$show_data_gentrification !='Show geocoded dataset' &file.exists('~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')==FALSE){
     preview_gentrification$data=data.frame(message='Dataframe not yet created, click the Pull data button to create dataset and begin pulling environmental measures')}
@@ -3276,7 +3300,7 @@ observeEvent(input$status_gentrification,{
   }
   if(input$show_data_gentrification=='Show missingness/count summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')==TRUE){
     preview_gentrification$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')%>%dplyr::select(id, everything())%>%
-      dplyr::select(-any_of('X'))%>% summarise(count_na=sum(is.na(.)), 
+      dplyr::select(-any_of('X'))%>%dplyr::summarise(count_na=sum(is.na(.)), 
                                                                                                                        count_total=n())
   }
   if(input$show_data_gentrification !='Show geocoded dataset' &file.exists('~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')==FALSE){
@@ -3585,7 +3609,7 @@ progress_summary<-function(){
 }
 
 #show table when the page loads
-progress_summary()
+#progress_summary()
 
 #refresh table with the button
 observeEvent(input$refreshprogress, {
@@ -3601,4 +3625,5 @@ message='Creating final summary report'
 
 
 }
+
 shinyApp(ui, server)
