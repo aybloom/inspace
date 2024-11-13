@@ -8,7 +8,6 @@ if(dir.exists('~/workspace/Inspace/data_pull_summaries')==FALSE){
 }
 
 # ACS summary tables ####
-
 summary_table_function<-function(dataset_path, summary_path, missingness_path){
     #if(file.exists(dataset_path) == FALSE){
     #  write.csv(data.frame(MESSAGE=c('Measures not yet pulled', 'Go back to the corresponding tab in the ShinyApp and pull data')), summary_path)
@@ -110,11 +109,19 @@ summary_list_plots<-list()
 
 for(i in 1:length(summary_list)){
   if(file.exists(summary_list[[i]])){
-  summary_list_plots[[i]]<- ggplot() + annotation_custom(tableGrob(read.csv(summary_list[[i]]) %>% head(20)%>%dplyr::select(-X), 
+    
+    
+  summary_list_plots[[i]]<- tryCatch(
+    ggplot() + 
+      annotation_custom(tableGrob(read.csv(summary_list[[i]], row.names = F) %>% head(20)%>%dplyr::select(-X), 
                                                                    theme=ttheme_default(base_size=10), rows=NULL)) + 
-    labs(title = paste0(sub(".*data_pull_summaries/", "", summary_list[[i]]), ': Measure values'))+theme_minimal()
+    labs(title = paste0(sub(".*data_pull_summaries/", "", summary_list[[i]]), ': Measure values'))+theme_minimal(), error=function(e) 
+      ggplot() + annotation_custom(tableGrob(data.frame(Status='data pull not complete'), rows=NULL)) + 
+      labs(title = paste0(sub(".*data_pull_summaries/", "", summary_list[[i]]), ': Measure values'))+theme_minimal())
   }
-  else{summary_list_plots[[i]]<-ggplot() + annotation_custom(tableGrob(data.frame(Status='data pull not complete'), rows=NULL)) + 
+  
+  else{
+  summary_list_plots[[i]]<-ggplot() + annotation_custom(tableGrob(data.frame(Status='data pull not complete'), rows=NULL)) + 
     labs(title = paste0(sub(".*data_pull_summaries/", "", summary_list[[i]]), ': Measure values'))+theme_minimal()
   
   }
