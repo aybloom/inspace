@@ -2067,7 +2067,7 @@ observeEvent(input$pull_mrfei,{
             suppressMessages(
               suppressWarnings(
                 environmental_measures<-get_acmt_standard_array(long=longitude, lat=latitude, radius_meters = radius, year=year, codes_of_acs_variables_to_get = NULL, 
-                                                                external_data_name_to_info_list=external_data_name_to_info_list, fill_missing_GEOID_with_zero = TRUE)
+                                                                external_data_name_to_info_list=external_data_name_to_info_list, fill_missing_GEOID_with_zero = FALSE)
               )
             )
             mrfei_measures<-environmental_measures %>% t %>% data.frame %>%row_to_names(row_number = 1)%>%mutate(id=id, year=year, radius=radius)
